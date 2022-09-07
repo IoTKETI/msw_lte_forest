@@ -291,8 +291,8 @@ function parseDataMission(topic, str_message) {
         // User define Code
         let obj_lib_data = JSON.parse(str_message);
 
-        if(fc.hasOwnProperty('global_position_int')) {
-            Object.assign(obj_lib_data, JSON.parse(JSON.stringify(fc['global_position_int'])));
+        if(fc.hasOwnProperty('gpi')) {
+            Object.assign(obj_lib_data, JSON.parse(JSON.stringify(fc['gpi'])));
         }
         str_message = JSON.stringify(obj_lib_data);
         ///////////////////////////////////////////////////////////////////////
