@@ -301,7 +301,7 @@ function parseDataMission(topic, str_message) {
         let data_topic = '/Mobius/' + config.gcs + '/Mission_Data/' + config.drone + '/' + config.name + '/' + topic_arr[topic_arr.length-1];
         // msw_mqtt_client.publish(data_topic + '/' + sortie_name, str_message);
         msw_mqtt_client.publish(data_topic, str_message);
-        sh_man.crtci(data_topic + '?rcn=0', 0, str_message, null, function (rsc, res_body, parent, socket) {
+        sh_man.crtci(data_topic + '?rcn=0', 0, JSON.parse(str_message), null, function (rsc, res_body, parent, socket) {
             if (rsc === '2001') {
                 setTimeout(mon_local_db, 500, data_topic);
             } else {
@@ -309,7 +309,7 @@ function parseDataMission(topic, str_message) {
             }
         });
     }
-    catch (e) {
+    catch (e) {console.log(e)
         console.log('[parseDataMission] data format of lib is not json');
     }
 }
