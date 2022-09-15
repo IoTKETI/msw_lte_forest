@@ -124,26 +124,26 @@ function runLib(obj_lib) {
                 console.log('OS is Ubuntu')
                 scripts_arr[0] = scripts_arr[0] + '_kea';
             }
-        })
 
-        let run_lib = spawn(scripts_arr[0], scripts_arr.slice(1));
+            let run_lib = spawn(scripts_arr[0], scripts_arr.slice(1));
 
-        run_lib.stdout.on('data', function(data) {
-            console.log('stdout: ' + data);
-        });
+            run_lib.stdout.on('data', function(data) {
+                console.log('stdout: ' + data);
+            });
 
-        run_lib.stderr.on('data', function(data) {
-            console.log('stderr: ' + data);
-        });
+            run_lib.stderr.on('data', function(data) {
+                console.log('stderr: ' + data);
+            });
 
-        run_lib.on('exit', function(code) {
-            console.log('exit: ' + code);
+            run_lib.on('exit', function(code) {
+                console.log('exit: ' + code);
 
-            setTimeout(runLib, 3000, obj_lib)
-        });
+                setTimeout(runLib, 3000, obj_lib)
+            });
 
-        run_lib.on('error', function(code) {
-            console.log('error: ' + code);
+            run_lib.on('error', function(code) {
+                console.log('error: ' + code);
+            });
         });
     }
     catch (e) {
