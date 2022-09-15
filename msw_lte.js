@@ -16,7 +16,7 @@
 
 let mqtt = require('mqtt');
 let fs = require('fs');
-let spawn = require('child_process').spawn;
+const {exec, spawn} = require('child_process')
 const {nanoid} = require('nanoid');
 const util = require("util");
 const db = require('node-localdb');
@@ -113,6 +113,18 @@ function runLib(obj_lib) {
             scripts_arr[0] = scripts_arr[0].replace('./', '');
             scripts_arr[0] = './' + scripts_arr[0];
         }
+
+        exec("cat /etc/*release* | grep -w ID | cut -d '=' -f 2", (error, stdout) => {
+            if (error) {  // Windows
+                console.log('OS is Windows')
+            }
+            if (stdout === "raspbian\n") {  // CROW
+                console.log('OS is Raspberry Pi')
+            } else if (stdout === "ubuntu\n") {  // KEA
+                console.log('OS is Ubuntu')
+                scripts_arr[0] = scripts_arr[0] + '_kea';
+            }
+        })
 
         let run_lib = spawn(scripts_arr[0], scripts_arr.slice(1));
 
