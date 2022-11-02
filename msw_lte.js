@@ -75,13 +75,13 @@ msw_sub_fc_topic.push('/TELE/drone/gpi');
 let msw_sub_lib_topic = [];
 
 function init() {
-    if(config.lib.length > 0) {
-        for(let idx in config.lib) {
-            if(config.lib.hasOwnProperty(idx)) {
+    if (config.lib.length > 0) {
+        for (let idx in config.lib) {
+            if (config.lib.hasOwnProperty(idx)) {
                 if (msw_mqtt_client != null) {
                     for (let i = 0; i < config.lib[idx].control.length; i++) {
                         let sub_container_name = config.lib[idx].control[i];
-                        let _topic = '/Mobius/' + config.gcs + '/Mission_Data/' + config.drone + '/' + sub_container_name;
+                        let _topic = '/Mobius/' + config.gcs + '/Mission_Data/' + config.drone + +'/' + config.name + '/' + sub_container_name;
                         msw_mqtt_client.subscribe(_topic);
                         msw_sub_mobius_topic.push(_topic);
                         console.log('[msw_mqtt] msw_sub_mobius_topic[' + i + ']: ' + _topic);
@@ -97,7 +97,7 @@ function init() {
                 }
 
                 let obj_lib = config.lib[idx];
-                setTimeout(runLib, 1000 + parseInt(Math.random()*10), JSON.parse(JSON.stringify(obj_lib)));
+                setTimeout(runLib, 1000 + parseInt(Math.random() * 10), JSON.parse(JSON.stringify(obj_lib)));
             }
         }
     }
@@ -105,11 +105,24 @@ function init() {
 
 function runLib(obj_lib) {
     try {
-        let scripts_arr = obj_lib.scripts.split(' ');
-        if(config.directory_name == '') {
-
+        if (drone_info.board_ver.toUpperCase() === "CROW-A") {
+            obj_lib.scripts = './lib_lte /dev/ttyUSB1 115200';
+        } else if ((drone_info.board_ver.toUpperCase() === "CROW-B") || (drone_info.board_ver.toUpperCase() === "CROW-C")) {
+            if (drone_info.lte_type.toUpperCase() === "AMT") {
+                obj_lib.scripts = './lib_lte /dev/ttyUSB3 115200';
+            } else if (drone_info.lte_type.toUpperCase() === "QTEL") {
+                obj_lib.scripts = './lib_lte /dev/ttyUSB5 115200';
+            } else {
+                obj_lib.scripts = './lib_lte /dev/ttyUSB3 115200';
+            }
+        } else {
+            obj_lib.scripts = obj_lib.scripts;
         }
-        else {
+
+        let scripts_arr = obj_lib.scripts.split(' ');
+        if (config.directory_name == '') {
+
+        } else {
             scripts_arr[0] = scripts_arr[0].replace('./', '');
             scripts_arr[0] = './' + scripts_arr[0];
         }
@@ -127,26 +140,25 @@ function runLib(obj_lib) {
 
             let run_lib = spawn(scripts_arr[0], scripts_arr.slice(1));
 
-            run_lib.stdout.on('data', function(data) {
+            run_lib.stdout.on('data', function (data) {
                 console.log('stdout: ' + data);
             });
 
-            run_lib.stderr.on('data', function(data) {
+            run_lib.stderr.on('data', function (data) {
                 console.log('stderr: ' + data);
             });
 
-            run_lib.on('exit', function(code) {
+            run_lib.on('exit', function (code) {
                 console.log('exit: ' + code);
 
                 setTimeout(runLib, 3000, obj_lib)
             });
 
-            run_lib.on('error', function(code) {
+            run_lib.on('error', function (code) {
                 console.log('error: ' + code);
             });
         });
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e.message);
     }
 }
@@ -156,7 +168,7 @@ let msw_mqtt_client = null;
 msw_mqtt_connect(drone_info.host, 1883);
 
 function msw_mqtt_connect(broker_ip, port) {
-    if(msw_mqtt_client == null) {
+    if (msw_mqtt_client == null) {
         let connectOptions = {
             host: broker_ip,
             port: port,
@@ -289,7 +301,7 @@ function on_process_fc_data(topic, str_message) {
     // console.log('[' + topic + '] ' + str_message);
 
     let topic_arr = topic.split('/');
-    fc[topic_arr[topic_arr.length-1]] = JSON.parse(str_message);
+    fc[topic_arr[topic_arr.length - 1]] = JSON.parse(str_message);
 
     parseFcData(topic, str_message);
 }
@@ -303,14 +315,14 @@ function parseDataMission(topic, str_message) {
         // User define Code
         let obj_lib_data = JSON.parse(str_message);
 
-        if(fc.hasOwnProperty('gpi')) {
+        if (fc.hasOwnProperty('gpi')) {
             Object.assign(obj_lib_data, JSON.parse(JSON.stringify(fc['gpi'])));
         }
         str_message = JSON.stringify(obj_lib_data);
         ///////////////////////////////////////////////////////////////////////
 
         let topic_arr = topic.split('/');
-        let data_topic = '/Mobius/' + config.gcs + '/Mission_Data/' + config.drone + '/' + config.name + '/' + topic_arr[topic_arr.length-1];
+        let data_topic = '/Mobius/' + config.gcs + '/Mission_Data/' + config.drone + '/' + config.name + '/' + topic_arr[topic_arr.length - 1];
         // msw_mqtt_client.publish(data_topic + '/' + sortie_name, str_message);
         msw_mqtt_client.publish(data_topic, str_message);
         sh_man.crtci(data_topic + '?rcn=0', 0, JSON.parse(str_message), null, function (rsc, res_body, parent, socket) {
@@ -320,11 +332,12 @@ function parseDataMission(topic, str_message) {
                 lte_data.insert(JSON.parse(str_message));
             }
         });
-    }
-    catch (e) {console.log(e)
+    } catch (e) {
+        console.log(e)
         console.log('[parseDataMission] data format of lib is not json');
     }
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 
 function parseControlMission(topic, str_message) {
@@ -335,8 +348,7 @@ function parseControlMission(topic, str_message) {
         let topic_arr = topic.split('/');
         let _topic = '/MUV/control/' + config.lib[0].name + '/' + topic_arr[topic_arr.length - 1];
         local_msw_mqtt_client.publish(_topic, str_message);
-    }
-    catch (e) {
+    } catch (e) {
         console.log('[parseControlMission] data format of lib is not json');
     }
 }
