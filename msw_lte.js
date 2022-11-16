@@ -105,15 +105,23 @@ function init() {
 
 function runLib(obj_lib) {
     try {
-        if (drone_info.board_ver.toUpperCase() === "CROW-A") {
-            obj_lib.scripts = './lib_lte /dev/ttyUSB1 115200';
-        } else if ((drone_info.board_ver.toUpperCase() === "CROW-B") || (drone_info.board_ver.toUpperCase() === "CROW-C")) {
-            if (drone_info.lte_type.toUpperCase() === "AMT") {
-                obj_lib.scripts = './lib_lte /dev/ttyUSB3 115200';
-            } else if (drone_info.lte_type.toUpperCase() === "QTEL") {
-                obj_lib.scripts = './lib_lte /dev/ttyUSB5 115200';
+        if (drone_info.hasOwnProperty('board_ver')) {
+            if (drone_info.board_ver.toUpperCase() === "CROW-A") {
+                obj_lib.scripts = './lib_lte /dev/ttyUSB1 115200';
+            } else if ((drone_info.board_ver.toUpperCase() === "CROW-B") || (drone_info.board_ver.toUpperCase() === "CROW-C")) {
+                if (drone_info.hasOwnProperty('lte_type')) {
+                    if (drone_info.lte_type.toUpperCase() === "AMT") {
+                        obj_lib.scripts = './lib_lte /dev/ttyUSB3 115200';
+                    } else if (drone_info.lte_type.toUpperCase() === "QTEL") {
+                        obj_lib.scripts = './lib_lte /dev/ttyUSB5 115200';
+                    } else {
+                        obj_lib.scripts = './lib_lte /dev/ttyUSB3 115200';
+                    }
+                } else {
+                    obj_lib.scripts = './lib_lte /dev/ttyUSB3 115200';
+                }
             } else {
-                obj_lib.scripts = './lib_lte /dev/ttyUSB3 115200';
+                obj_lib.scripts = obj_lib.scripts;
             }
         } else {
             obj_lib.scripts = obj_lib.scripts;
