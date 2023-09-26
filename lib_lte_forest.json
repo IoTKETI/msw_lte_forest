@@ -1,0 +1,10 @@
+{
+    "name": "lib_lte_forest",
+    "target": "armv6",
+    "description": "[name] [portnum] [baudrate]",
+    "scripts": "./lib_lte_forest",
+    "data": [
+        "LTE"
+    ],
+    "control": []
+}
