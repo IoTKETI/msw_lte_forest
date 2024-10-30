@@ -259,7 +259,8 @@ function parseDataMission(topic, str_message) {
         ///////////////////////////////////////////////////////////////////////
 
         let topic_arr = topic.split('/');
-        let data_topic = '/' + config.name + '/Tele/' + topic_arr[topic_arr.length - 1];
+        let data_topic = '/Mobius/' + config.gcs + '/Mission_Data/' + config.drone + '/' + config.name + '/' + topic_arr[topic_arr.length - 1] + '/orig';
+        // let data_topic = '/' + config.name + '/Tele/' + topic_arr[topic_arr.length - 1];
         if (dr_mqtt_client) {
             dr_mqtt_client.publish(data_topic, str_message);
         }
