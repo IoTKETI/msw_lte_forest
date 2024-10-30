@@ -81,7 +81,7 @@ let mobius_control_msw_topic = [];
 
 let msw_sub_fc_topic = [];
 // msw_sub_fc_topic.push('/TELE/drone/hb');
-msw_sub_fc_topic.push('/TELE/drone/gpi');
+msw_sub_fc_topic.push('/od/tele/broadcast/man/gpi/orig');
 
 let lib_data_msw_topic = [];
 
@@ -237,8 +237,8 @@ function on_receive_from_lib(topic, str_message) {
 function on_process_fc_data(topic, str_message) {
     // console.log('[' + topic + '] ' + str_message);
 
-    let topic_arr = topic.split('/');
-    fc[topic_arr[topic_arr.length - 1]] = JSON.parse(str_message);
+    // let topic_arr = topic.split('/');
+    // fc[topic_arr[topic_arr.length - 1]] = JSON.parse(str_message);
 
     parseFcData(topic, str_message);
 }
@@ -288,13 +288,8 @@ function parseControlMission(topic, str_message) {
 }
 
 function parseFcData(topic, str_message) {
-    // User define Code
-    // let topic_arr = topic.split('/');
-    // if(topic_arr[topic_arr.length-1] == 'global_position_int') {
-    //     let _topic = '/MUV/control/' + config.lib[0].name + '/' + config.lib[1].control[1]; // 'Req_enc'
-    //     mqtt_client.publish(_topic, str_message);
-    // }
-    ///////////////////////////////////////////////////////////////////////
+    let topic_arr = topic.split('/');
+    fc[topic_arr[topic_arr.length - 2]] = JSON.parse(str_message);
 }
 
 function mon_local_db(data_topic) {
